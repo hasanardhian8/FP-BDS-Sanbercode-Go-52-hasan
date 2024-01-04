@@ -22,6 +22,13 @@ func GetDatabaseConnection() *gorm.DB {
 		panic(err.Error())
 	}
 	fmt.Println("Sukses Konek ke Db!")
-	db.AutoMigrate(&models.Produks{}, &models.Saldos{}, &models.Registers{}, &models.Pemesanans{}, &models.Profils{})
+	db.AutoMigrate(
+		&models.Produks{},
+		&models.Saldos{},
+		&models.Registers{},
+		&models.Pemesanans{},
+		&models.Profils{},
+		&models.Transaksis{},
+		&models.Feedbacks{})
 	return db
 }

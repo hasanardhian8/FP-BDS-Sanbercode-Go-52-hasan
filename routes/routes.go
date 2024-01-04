@@ -44,5 +44,16 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.PATCH("/api/profil/:id", controller.UpdateProfil)
 	r.DELETE("api/profil/:id", controller.DeleteProfil)
 
+	r.GET("/api/transaksi", controller.GetAllTransaksi)
+	r.POST("/api/transaksi", controller.CreateTransaksi)
+	r.GET("/api/transaksi/:id", controller.GetTransaksiById)
+	r.PATCH("/api/transaksi/:id", controller.UpdateTransaksi)
+	r.DELETE("api/transaksi/:id", controller.DeleteTransaksi)
+
+	r.GET("/api/feedback", controller.GetAllFeedback)
+	r.POST("/api/feedback", controller.CreateFeedback)
+	r.GET("/api/feedback/:id", controller.GetFeedbackById)
+	r.PATCH("/api/feedback/:id", controller.UpdateFeedback)
+	r.DELETE("api/feedback/:id", controller.DeleteFeedback)
 	return r
 }
