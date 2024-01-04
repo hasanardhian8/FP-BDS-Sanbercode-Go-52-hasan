@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 
 	"member/controller"
+	"member/middlewares"
 )
 
 func Router(db *gorm.DB) *gin.Engine {
@@ -13,47 +14,61 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db)
 	})
-
-	r.GET("/api/produk", controller.GetAllProduct)
-	r.POST("/api/produk", controller.CreateProduct)
-	r.GET("/api/produk/:id", controller.GetProductById)
-	r.PATCH("/api/produk/:id", controller.UpdateProduct)
-	r.DELETE("api/produk/:id", controller.DeleteProduct)
-
-	r.GET("/api/saldo", controller.GetAllSaldo)
-	r.POST("/api/saldo", controller.CreateSaldo)
-	r.GET("/api/saldo/:id", controller.GetSaldoById)
-	r.PATCH("/api/saldo/:id", controller.UpdateSaldo)
-	r.DELETE("api/saldo/:id", controller.DeleteSaldo)
-
-	r.GET("/api/register", controller.GetAllRegister)
 	r.POST("/api/register", controller.CreateRegister)
-	r.GET("/api/register/:id", controller.GetRegisterById)
-	r.PATCH("/api/register/:id", controller.UpdateRegister)
-	r.DELETE("api/register/:id", controller.DeleteRegister)
+	r.POST("/login", controller.Login)
 
+	//non member
+	r.GET("/api/produk", controller.GetAllProduct)
+	r.GET("/api/produk/:id", controller.GetProductById)
 	r.GET("/api/pesan", controller.GetAllPesan)
-	r.POST("/api/pesan", controller.CreatePesan)
-	r.GET("/api/pesan/:id", controller.GetPesanById)
-	r.PATCH("/api/pesan/:id", controller.UpdatePesan)
-	r.DELETE("api/pesan/:id", controller.DeletePesan)
-
-	r.GET("/api/profil", controller.GetAllProfil)
-	r.POST("/api/profil", controller.CreateProfil)
-	r.GET("/api/profil/:id", controller.GetProfilById)
-	r.PATCH("/api/profil/:id", controller.UpdateProfil)
-	r.DELETE("api/profil/:id", controller.DeleteProfil)
-
-	r.GET("/api/transaksi", controller.GetAllTransaksi)
-	r.POST("/api/transaksi", controller.CreateTransaksi)
-	r.GET("/api/transaksi/:id", controller.GetTransaksiById)
-	r.PATCH("/api/transaksi/:id", controller.UpdateTransaksi)
-	r.DELETE("api/transaksi/:id", controller.DeleteTransaksi)
-
 	r.GET("/api/feedback", controller.GetAllFeedback)
-	r.POST("/api/feedback", controller.CreateFeedback)
-	r.GET("/api/feedback/:id", controller.GetFeedbackById)
-	r.PATCH("/api/feedback/:id", controller.UpdateFeedback)
-	r.DELETE("api/feedback/:id", controller.DeleteFeedback)
+
+	//admin
+	AdminMiddlewareRoute := r.Group("/")
+	AdminMiddlewareRoute.Use(middlewares.JwtAuthMiddleware())
+	AdminMiddlewareRoute.Use(middlewares.IsAdmin())
+	AdminMiddlewareRoute.POST("/api/produk/", controller.CreateProduct)
+	AdminMiddlewareRoute.PATCH("/api/produk/:id", controller.UpdateProduct)
+	AdminMiddlewareRoute.DELETE("/api/produk/:id", controller.DeleteProduct)
+
+	AdminMiddlewareRoute.GET("/api/register", controller.GetAllRegister)
+	AdminMiddlewareRoute.GET("/api/register/:id", controller.GetRegisterById)
+
+	AdminMiddlewareRoute.GET("/api/profil", controller.GetAllProfil)
+	AdminMiddlewareRoute.GET("/api/profil/:id", controller.GetProfilById)
+
+	//member
+	MemberMiddlewareRoute := r.Group("/")
+	MemberMiddlewareRoute.Use(middlewares.JwtAuthMiddleware())
+	MemberMiddlewareRoute.GET("/", controller.GetAllSaldo)
+	MemberMiddlewareRoute.POST("/", controller.CreateSaldo)
+	MemberMiddlewareRoute.GET("/:id", controller.GetSaldoById)
+	MemberMiddlewareRoute.PATCH("/:id", controller.UpdateSaldo)
+	MemberMiddlewareRoute.DELETE("/:id", controller.DeleteSaldo)
+
+	MemberMiddlewareRoute.PATCH("/api/register/:id", controller.UpdateRegister)
+	MemberMiddlewareRoute.DELETE("api/register/:id", controller.DeleteRegister)
+
+	MemberMiddlewareRoute.POST("/api/profil", controller.CreateProfil)
+	MemberMiddlewareRoute.PATCH("/api/profil/:id", controller.UpdateProfil)
+	MemberMiddlewareRoute.DELETE("api/profil/:id", controller.DeleteProfil)
+
+	//member
+	MemberMiddlewareRoute.GET("/api/transaksi", controller.GetAllTransaksi)
+	MemberMiddlewareRoute.POST("/api/transaksi", controller.CreateTransaksi)
+	MemberMiddlewareRoute.GET("/api/transaksi/:id", controller.GetTransaksiById)
+	MemberMiddlewareRoute.PATCH("/api/transaksi/:id", controller.UpdateTransaksi)
+	MemberMiddlewareRoute.DELETE("api/transaksi/:id", controller.DeleteTransaksi)
+
+	MemberMiddlewareRoute.POST("/api/pesan", controller.CreatePesan)
+	//r.GET("/api/pesan/:id", controller.GetPesanById)
+	MemberMiddlewareRoute.PATCH("/api/pesan/:id", controller.UpdatePesan)
+	MemberMiddlewareRoute.DELETE("api/pesan/:id", controller.DeletePesan)
+
+	MemberMiddlewareRoute.POST("/api/feedback", controller.CreateFeedback)
+	//r.GET("/api/feedback/:id", controller.GetFeedbackById)
+	MemberMiddlewareRoute.PATCH("/api/feedback/:id", controller.UpdateFeedback)
+	MemberMiddlewareRoute.DELETE("api/feedback/:id", controller.DeleteFeedback)
+
 	return r
 }

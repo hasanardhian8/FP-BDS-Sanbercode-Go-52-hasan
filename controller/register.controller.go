@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +32,13 @@ func CreateRegister(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(regin.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
+	regin.Password = string(hashedPassword)
 	data := models.Registers{Nama: regin.Nama, Email: regin.Email, Password: regin.Password, Role: regin.Role}
 	db.Create(&data)
 
