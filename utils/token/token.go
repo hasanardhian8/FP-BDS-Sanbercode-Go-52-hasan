@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var API_SECRET = utils.Getenv("API_SECRET", "ardhian")
+var API_SECRET = utils.Getenv("API_SECRET", "default_value")
 
 func GenerateToken(id uint) (string, error) {
 	token_lifespan, err := strconv.Atoi(utils.Getenv("TOKEN_HOUR_LIFESPAN", "1"))

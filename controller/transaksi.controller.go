@@ -93,7 +93,7 @@ func UpdateTransaksi(c *gin.Context) {
 	updatedInput.IdPesan = upInTrans.IdPesan
 	updatedInput.Tanggal = time.Now().UTC()
 	updatedInput.Pembayaran = upInTrans.Pembayaran
-	updatedInput.Status = upInTrans.Status
+	updatedInput.Status = true
 
 	db.Model(&upTrans).Updates(updatedInput)
 

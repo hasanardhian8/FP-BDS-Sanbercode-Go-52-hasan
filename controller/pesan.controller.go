@@ -35,8 +35,15 @@ func CreatePesan(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id product not found!"})
 		return
 	}
-	data := models.Pemesanans{IdProduk: pesin.IdProduk, JumlahBarang: pesin.JumlahBarang, Total: pesin.Total}
+
+	data := models.Pemesanans{
+		IdProduk:     pesin.IdProduk,
+		JumlahBarang: pesin.JumlahBarang,
+		Total:        pesin.JumlahBarang * inpro.Harga,
+	}
 	db.Create(&data)
+
+	db.Preload("Produks").First(&data, data.Id)
 
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
@@ -80,7 +87,7 @@ func UpdatePesan(c *gin.Context) {
 	var updatedInput models.Pemesanans
 	updatedInput.IdProduk = uppesin.IdProduk
 	updatedInput.JumlahBarang = uppesin.JumlahBarang
-	updatedInput.Total = uppesin.Total
+	updatedInput.Total = uppesin.JumlahBarang * uppro.Harga
 
 	db.Model(&uppes).Updates(updatedInput)
 

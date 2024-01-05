@@ -23,9 +23,9 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.GET("api/produk", controller.GetAllProduct)
 	r.GET("api/produk/:id", controller.GetProductById)
 
-	r.POST("/pesan", controller.CreatePesan)
-	r.GET("/pesan/:id", controller.GetPesanById)
-	r.GET("/transaksi/:id", controller.GetTransaksiById)
+	r.POST("api/pesan", controller.CreatePesan)
+	r.GET("api/pesan/:id", controller.GetPesanById)
+	r.GET("api/transaksi/:id", controller.GetTransaksiById)
 
 	r.GET("api/feedback", controller.GetAllFeedback)
 

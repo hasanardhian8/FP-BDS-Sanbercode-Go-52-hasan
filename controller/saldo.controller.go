@@ -3,15 +3,17 @@ package controller
 import (
 	"member/models"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type saldoInput struct {
-	Pembayaran string `json:"pembayaran"`
-	Nominal    int    `json:"nominal"`
-	Total      int    `json:"total"`
+	Pembayaran string    `json:"pembayaran"`
+	Nominal    int       `json:"nominal"`
+	Total      int       `json:"total"`
+	Tanggal    time.Time `json:"tanggal"`
 }
 
 func GetAllSaldo(c *gin.Context) {
@@ -31,10 +33,21 @@ func CreateSaldo(c *gin.Context) {
 		return
 	}
 
-	data := models.Saldos{Pembayaran: salin.Pembayaran, Nominal: salin.Nominal, Total: salin.Total}
-	db.Create(&data)
+	var existingData models.Saldos
+	if err := db.Where(models.Saldos{Pembayaran: salin.Pembayaran, Tanggal: salin.Tanggal}).First(&existingData).Error; err != nil {
+		data := models.Saldos{Pembayaran: salin.Pembayaran, Nominal: salin.Nominal, Total: salin.Nominal, Tanggal: time.Now().UTC()}
+		db.Create(&data)
+		c.JSON(http.StatusOK, gin.H{"data": data})
+	} else {
+		existingData.Nominal = salin.Nominal
+		existingData.Total += salin.Nominal
+		db.Save(&existingData)
+		c.JSON(http.StatusOK, gin.H{"data": existingData})
+	}
+	// data := models.Saldos{Pembayaran: salin.Pembayaran, Nominal: salin.Nominal, Total: salin.Total, Tanggal: time.Now().UTC()}
+	// db.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	// c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 func GetSaldoById(c *gin.Context) { // Get model if exist
@@ -67,12 +80,12 @@ func UpdateSaldo(c *gin.Context) {
 		return
 	}
 
-	var updatedInput models.Saldos
-	updatedInput.Pembayaran = upsalin.Pembayaran
-	updatedInput.Nominal = upsalin.Nominal
-	updatedInput.Total = upsalin.Total
+	upsal.Pembayaran = upsalin.Pembayaran
+	upsal.Nominal = upsalin.Nominal
+	upsal.Total += upsalin.Nominal
+	upsal.Tanggal = time.Now().UTC()
 
-	db.Model(&upsal).Updates(updatedInput)
+	db.Save(&upsal)
 
 	c.JSON(http.StatusOK, gin.H{"data": upsal})
 }

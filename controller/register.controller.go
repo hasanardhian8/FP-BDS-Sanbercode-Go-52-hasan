@@ -39,7 +39,7 @@ func CreateRegister(c *gin.Context) {
 	}
 
 	regin.Password = string(hashedPassword)
-	data := models.Registers{Nama: regin.Nama, Email: regin.Email, Password: regin.Password, Role: regin.Role}
+	data := models.Registers{Nama: regin.Nama, Email: regin.Email, Password: regin.Password, Role: "member"}
 	db.Create(&data)
 
 	c.JSON(http.StatusOK, gin.H{"data": data})
@@ -79,7 +79,6 @@ func UpdateRegister(c *gin.Context) {
 	updatedInput.Nama = upregin.Nama
 	updatedInput.Email = upregin.Email
 	updatedInput.Password = upregin.Password
-	updatedInput.Role = upregin.Role
 
 	db.Model(&upreg).Updates(updatedInput)
 

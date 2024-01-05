@@ -2,6 +2,7 @@ package controller
 
 import (
 	"member/models"
+	"member/utils/token"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ type profilInput struct {
 func GetAllProfil(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var getPro []models.Profils
-	db.Find(&getPro)
+	db.Preload("Registers").Preload("Saldos").Find(&getPro)
 
 	c.JSON(http.StatusOK, gin.H{"data": getPro})
 }
@@ -24,22 +25,28 @@ func GetAllProfil(c *gin.Context) {
 func CreateProfil(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 
+	userID, err := token.ExtractTokenID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	var inPro profilInput
 	if err := c.ShouldBindJSON(&inPro); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	var inReg models.Registers
-	if err := db.Where("id = ?", inPro.IdRegister).First(&inReg).Error; err != nil {
+	if err := db.Where("id = ?", userID).First(&inReg).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id register not found!"})
 		return
 	}
-	var inSal models.Saldos
-	if err := db.Where("id = ?", inPro.IdRegister).First(&inSal).Error; err != nil {
+	var inSal models.Saldos //belum nemu
+	if err := db.Where("id = ?", inPro.IdSaldo).First(&inSal).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id saldo not found!"})
 		return
 	}
-	data := models.Profils{IdRegister: inPro.IdRegister, IdSaldo: inPro.IdSaldo}
+	data := models.Profils{IdRegister: int(userID), IdSaldo: inPro.IdSaldo}
 	db.Create(&data)
 
 	c.JSON(http.StatusOK, gin.H{"data": data})
@@ -61,6 +68,7 @@ func GetProfilById(c *gin.Context) { // Get model if exist
 func UpdateProfil(c *gin.Context) {
 
 	db := c.MustGet("db").(*gorm.DB)
+
 	// Get model if exist
 	var upPro models.Profils
 	if err := db.Where("id = ?", c.Param("id")).First(&upPro).Error; err != nil {
