@@ -5,7 +5,7 @@ import (
 	"member/routes"
 )
 
-func Main() {
+func main() {
 	db := config.GetDatabaseConnection()
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
