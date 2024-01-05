@@ -45,6 +45,7 @@ func GetPesanById(c *gin.Context) { // Get model if exist
 	var getpeso []models.Pemesanans
 
 	db := c.MustGet("db").(*gorm.DB)
+	//pengin menampilkan berdasarkan id login
 
 	if err := db.Where("id = ?", c.Param("id")).Find(&getpeso).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
