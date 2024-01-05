@@ -17,7 +17,7 @@ func GetDatabaseConnection() *gorm.DB {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	db, err := gorm.Open(postgres.Open(os.Getenv("POSTGRES_URL")), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(os.Getenv("POSTGRES_URL")))
 	if err != nil {
 		panic(err.Error())
 	}
